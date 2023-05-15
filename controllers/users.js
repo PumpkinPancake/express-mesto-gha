@@ -1,4 +1,4 @@
-const userSchema = require("../models/user");
+const userSchema = require('../models/user');
 
 const getUsers = (req, res) => {
   userSchema
@@ -13,16 +13,17 @@ const getUserById = (req, res) => {
   userSchema
     .findById(id)
     .orFail()
+    // eslint-disable-next-line consistent-return
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: "User is not found" });
-      } else {
-        res.send(user);
+        return res.status(404).send({ message: 'User is not found' });
       }
+      res.send(user);
     })
+    // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === "CastError") {
-        return res.status(400).send({ message: "Incorrect data sent" });
+      if (err.name === 'CastError') {
+        return res.status(400).send({ message: 'Incorrect data sent' });
       }
       res.status(500).send({ message: err.message });
     });
@@ -34,9 +35,10 @@ const createUser = (req, res) => {
   userSchema
     .create({ name, about, avatar })
     .then((user) => res.status(201).send(user))
+    // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === "ValidationError") {
-        return res.status(400).send({ message: "Invalid data sent" });
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Invalid data sent' });
       }
       res.status(500).send({ message: err.message });
     });
@@ -49,18 +51,19 @@ const updateUser = (req, res) => {
     .findByIdAndUpdate(
       req.user._id,
       { name, about },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     )
+    // eslint-disable-next-line consistent-return
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: "User is not found" });
-      } else {
-        res.send(user);
+        return res.status(404).send({ message: 'User is not found' });
       }
+      res.send(user);
     })
+    // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === "ValidationError") {
-        return res.status(400).send({ message: "Invalid data sent" });
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Invalid data sent' });
       }
       res.status(500).send({ message: err.message });
     });
@@ -73,18 +76,19 @@ const updateAvatar = (req, res) => {
     .findByIdAndUpdate(
       req.user._id,
       { avatar },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     )
+    // eslint-disable-next-line consistent-return
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: "User is not found" });
-      } else {
-        res.send(user);
+        return res.status(404).send({ message: 'User is not found' });
       }
+      res.send(user);
     })
+    // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === "ValidationError") {
-        return res.status(400).send({ message: "Invalid data sent" });
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Invalid data sent' });
       }
       res.status(500).send({ message: err.message });
     });

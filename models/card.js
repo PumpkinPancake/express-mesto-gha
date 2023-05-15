@@ -1,11 +1,11 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const cardSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
     maxlength: 30,
-    minlength: 2
+    minlength: 2,
   },
   link: {
     type: String,
