@@ -20,7 +20,6 @@ app.use((req, res, next) => {
 mongoose
   .connect(MONGO_URL)
   .then(() => {
-    console.log("Connected to MongoDB");
     app.listen(PORT);
   })
   .catch((err) => {
