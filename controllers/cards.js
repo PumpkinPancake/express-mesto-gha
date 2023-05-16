@@ -48,14 +48,16 @@ const addLike = (req, res) => {
       { $addToSet: { likes: req.user._id } },
       { new: true },
     )
+    // eslint-disable-next-line consistent-return
     .then((card) => {
+      if (!card) {
+        return res.status(404).send({ message: 'Card not found' });
+      }
       res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(400).send({ message: 'Incorrect data sent' });
-      } if (err.name === 'DocumentNotFoundError') {
-        return res.status(404).send({ message: 'Image for the specified id was not found' });
       }
       return res.status(500).send({ message: err.message });
     });
@@ -68,14 +70,16 @@ const removeLike = (req, res) => {
       { $pull: { likes: req.user._id } },
       { new: true },
     )
+    // eslint-disable-next-line consistent-return
     .then((card) => {
+      if (!card) {
+        return res.status(404).send({ message: 'Card not found' });
+      }
       res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(400).send({ message: 'Incorrect data sent' });
-      } if (err.name === 'DocumentNotFoundError') {
-        return res.status(404).send({ message: 'Image for the specified id was not found' });
       }
       return res.status(500).send({ message: err.message });
     });
