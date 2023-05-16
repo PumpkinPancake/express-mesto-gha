@@ -8,24 +8,23 @@ const getUsers = (req, res) => {
 };
 
 const getUserById = (req, res) => {
-  const { id } = req.params;
+  const { userId } = req.params;
 
   userSchema
-    .findById(id)
+    .findById(userId)
     .orFail()
-    // eslint-disable-next-line consistent-return
     .then((user) => {
-      if (!user) {
-        return res.status(404).send({ message: 'User is not found' });
-      }
-      res.send(user);
+      res.status(200).send(user);
+      console.log(userId);
     })
-    // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(400).send({ message: 'Incorrect data sent' });
       }
-      res.status(500).send({ message: err.message });
+      if (err.name === 'DocumentNotFoundError') {
+        return res.status(404).send({ message: 'User is not found' });
+      }
+      return res.status(500).send({ message: err.message });
     });
 };
 
@@ -35,12 +34,11 @@ const createUser = (req, res) => {
   userSchema
     .create({ name, about, avatar })
     .then((user) => res.status(201).send(user))
-    // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(400).send({ message: 'Invalid data sent' });
       }
-      res.status(500).send({ message: err.message });
+      return res.status(500).send({ message: err.message });
     });
 };
 
@@ -53,19 +51,16 @@ const updateUser = (req, res) => {
       { name, about },
       { new: true, runValidators: true },
     )
-    // eslint-disable-next-line consistent-return
     .then((user) => {
-      if (!user) {
-        return res.status(404).send({ message: 'User is not found' });
-      }
       res.send(user);
     })
-    // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         return res.status(400).send({ message: 'Invalid data sent' });
+      } if (err.name === 'DocumentNotFoundError') {
+        return res.status(404).send({ message: 'User is not found' });
       }
-      res.status(500).send({ message: err.message });
+      return res.status(500).send({ message: err.message });
     });
 };
 
@@ -78,19 +73,16 @@ const updateAvatar = (req, res) => {
       { avatar },
       { new: true, runValidators: true },
     )
-    // eslint-disable-next-line consistent-return
     .then((user) => {
-      if (!user) {
-        return res.status(404).send({ message: 'User is not found' });
-      }
       res.send(user);
     })
-    // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
         return res.status(400).send({ message: 'Invalid data sent' });
+      } if (err.name === 'DocumentNotFoundError') {
+        return res.status(404).send({ message: 'User is not found' });
       }
-      res.status(500).send({ message: err.message });
+      return res.status(500).send({ message: err.message });
     });
 };
 
