@@ -1,10 +1,14 @@
 const cardSchema = require('../models/card');
 
+const BAD_REQUEST_ERROR = 400;
+const NOT_FOUND_ERROR = 404;
+const INTERNAL_SERVER_ERROR = 500;
+
 const getCards = (req, res) => {
   cardSchema
     .find({})
     .then((cards) => res.send(cards))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'A server error has occurred' }));
 };
 
 const createCard = (req, res) => {
@@ -15,9 +19,9 @@ const createCard = (req, res) => {
     .then((card) => res.status(201).send(card))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Incorrect data sent' });
+        return res.status(BAD_REQUEST_ERROR).send({ message: 'Incorrect data sent' });
       }
-      return res.status(500).send({ message: err.message });
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'A server error has occurred' });
     });
 };
 
@@ -29,15 +33,15 @@ const deleteCard = (req, res) => {
     // eslint-disable-next-line consistent-return
     .then((card) => {
       if (!card) {
-        return res.status(404).send({ message: 'Card not found' });
+        return res.status(NOT_FOUND_ERROR).send({ message: 'Card not found' });
       }
       res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Incorrect data sent' });
+        return res.status(BAD_REQUEST_ERROR).send({ message: 'Incorrect data sent' });
       }
-      return res.status(500).send({ message: err.message });
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'A server error has occurred' });
     });
 };
 
@@ -51,15 +55,15 @@ const addLike = (req, res) => {
     // eslint-disable-next-line consistent-return
     .then((card) => {
       if (!card) {
-        return res.status(404).send({ message: 'Card not found' });
+        return res.status(NOT_FOUND_ERROR).send({ message: 'Card not found' });
       }
       res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Incorrect data sent' });
+        return res.status(BAD_REQUEST_ERROR).send({ message: 'Incorrect data sent' });
       }
-      return res.status(500).send({ message: err.message });
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'A server error has occurred' });
     });
 };
 
@@ -73,15 +77,15 @@ const removeLike = (req, res) => {
     // eslint-disable-next-line consistent-return
     .then((card) => {
       if (!card) {
-        return res.status(404).send({ message: 'Card not found' });
+        return res.status(NOT_FOUND_ERROR).send({ message: 'Card not found' });
       }
       res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Incorrect data sent' });
+        return res.status(BAD_REQUEST_ERROR).send({ message: 'Incorrect data sent' });
       }
-      return res.status(500).send({ message: err.message });
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'A server error has occurred' });
     });
 };
 

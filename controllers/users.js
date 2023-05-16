@@ -1,10 +1,14 @@
 const userSchema = require('../models/user');
 
+const BAD_REQUEST_ERROR = 400;
+const NOT_FOUND_ERROR = 404;
+const INTERNAL_SERVER_ERROR = 500;
+
 const getUsers = (req, res) => {
   userSchema
     .find({})
     .then((users) => res.send(users))
-    .catch((err) => res.status(500).send({ message: err.message }));
+    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'A server error has occurred' }));
 };
 
 const getUserById = (req, res) => {
@@ -19,12 +23,12 @@ const getUserById = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Incorrect data sent' });
+        return res.status(BAD_REQUEST_ERROR).send({ message: 'Incorrect data sent' });
       }
       if (err.name === 'DocumentNotFoundError') {
-        return res.status(404).send({ message: 'User is not found' });
+        return res.status(NOT_FOUND_ERROR).send({ message: 'User is not found' });
       }
-      return res.status(500).send({ message: err.message });
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'A server error has occurred' });
     });
 };
 
@@ -36,9 +40,9 @@ const createUser = (req, res) => {
     .then((user) => res.status(201).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Invalid data sent' });
+        return res.status(BAD_REQUEST_ERROR).send({ message: 'Invalid data sent' });
       }
-      return res.status(500).send({ message: err.message });
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'A server error has occurred' });
     });
 };
 
@@ -56,11 +60,11 @@ const updateUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res.status(400).send({ message: 'Invalid data sent' });
+        return res.status(BAD_REQUEST_ERROR).send({ message: 'Invalid data sent' });
       } if (err.name === 'DocumentNotFoundError') {
-        return res.status(404).send({ message: 'User is not found' });
+        return res.status(NOT_FOUND_ERROR).send({ message: 'User is not found' });
       }
-      return res.status(500).send({ message: err.message });
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'A server error has occurred' });
     });
 };
 
@@ -78,11 +82,11 @@ const updateAvatar = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res.status(400).send({ message: 'Invalid data sent' });
+        return res.status(BAD_REQUEST_ERROR).send({ message: 'Invalid data sent' });
       } if (err.name === 'DocumentNotFoundError') {
-        return res.status(404).send({ message: 'User is not found' });
+        return res.status(NOT_FOUND_ERROR).send({ message: 'User is not found' });
       }
-      return res.status(500).send({ message: err.message });
+      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'A server error has occurred' });
     });
 };
 

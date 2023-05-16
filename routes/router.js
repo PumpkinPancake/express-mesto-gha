@@ -7,7 +7,7 @@ router.use('/users', usersRouter);
 router.use('/cards', cardsRouter);
 router.use('/*', (req, res) => {
   // eslint-disable-next-line no-undef
-  res.status(404).send({ message: 'Server Error' });
+  res.status(404).send({ message: 'This address does not exist' });
 });
 
 module.exports = router;
