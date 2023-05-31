@@ -28,7 +28,7 @@ app.use("/", router);
 
 app.use(errors());
 
-app.use((error, req, res) => {
+app.use((error, req, res, next) => {
   const { status = 500, message } = error;
 
   res.status(status).send({
