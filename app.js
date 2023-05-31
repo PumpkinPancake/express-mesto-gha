@@ -20,13 +20,13 @@ app.use(express.json());
 
 app.use(helmet());
 
-app.use(errors());
-
-app.use("/signin", loginValidator, login);
-app.use("/signup", createUserValidator, createUser);
+app.post("/signin", loginValidator, login);
+app.post("/signup", createUserValidator, createUser);
 
 app.use(auth);
 app.use("/", router);
+
+app.use(errors());
 
 app.use((error, req, res) => {
   const { status = 500, message } = error;

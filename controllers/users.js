@@ -24,7 +24,7 @@ const getUserById = (req, res, next) => {
     .findById(userId)
     .orFail(new NOT_FOUND_ERROR("User is not found"))
     .then((user) => {
-      res.status(200).send({ data: user });
+      res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === "CastError") {
@@ -40,7 +40,7 @@ const createUser = (req, res, next) => {
   bcrypt.hash(password, SALT_ROUNDS).then((hash) => {
     userSchema
       .create({ name, about, avatar, email, password: hash })
-      .then((user) => res.status(201).send({ data: user }))
+      .then((user) => res.status(201).send({ data:{ name, about, avatar, email } }))
       .catch((err) => {
         if (err.code === 11000) {
           return next(
