@@ -25,8 +25,8 @@ app.use(errors());
 app.use("/signin", loginValidator, login);
 app.use("/signup", createUserValidator, createUser);
 
-app.use("/", router);
 app.use(auth);
+app.use("/", router);
 
 app.use((error, req, res) => {
   const { status = 500, message } = error;
