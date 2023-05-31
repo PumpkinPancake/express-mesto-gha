@@ -1,93 +1,120 @@
-const userSchema = require('../models/user');
+/* eslint-env es6 */
+const userSchema = require("../models/user");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
-const BAD_REQUEST_ERROR = 400;
-const NOT_FOUND_ERROR = 404;
-const INTERNAL_SERVER_ERROR = 500;
+const BAD_REQUEST_ERROR = require("../errors/badRequestError");
+const NOT_FOUND_ERROR = require("../errors/notFoundError");
+const WRONG_CONFLICT_ENTITY = require("../errors/wrongConflictEntity");
 
-const getUsers = (req, res) => {
+const SALT_ROUNDS = 10;
+const secretKey = "my-secret-key";
+
+const getUsers = (req, res, next) => {
   userSchema
     .find({})
     .then((users) => res.send(users))
-    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'A server error has occurred' }));
+    .catch((err) => next(err));
 };
 
-const getUserById = (req, res) => {
+const getUserById = (req, res, next) => {
   const { userId } = req.params;
 
   userSchema
     .findById(userId)
-    .orFail()
+    .orFail(new NOT_FOUND_ERROR("User is not found"))
     .then((user) => {
-      res.status(200).send(user);
-      console.log(userId);
+      res.status(200).send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        return res.status(BAD_REQUEST_ERROR).send({ message: 'Incorrect data sent' });
+      if (err.name === "CastError") {
+        return next(new BAD_REQUEST_ERROR("Incorrect data sent"));
       }
-      if (err.name === 'DocumentNotFoundError') {
-        return res.status(NOT_FOUND_ERROR).send({ message: 'User is not found' });
-      }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'A server error has occurred' });
+      return next(err);
     });
 };
 
-const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
+const createUser = (req, res, next) => {
+  const { name, about, avatar, email, password } = req.body;
 
-  userSchema
-    .create({ name, about, avatar })
-    .then((user) => res.status(201).send(user))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(BAD_REQUEST_ERROR).send({ message: 'Invalid data sent' });
-      }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'A server error has occurred' });
-    });
+  bcrypt.hash(password, SALT_ROUNDS).then((hash) => {
+    userSchema
+      .create({ name, about, avatar, email, password: hash })
+      .then((user) => res.status(201).send({ data: user }))
+      .catch((err) => {
+        if (err.code === 11000) {
+          return next(
+            new WRONG_CONFLICT_ENTITY(
+              `User with this email address ${email} already exists`
+            )
+          );
+        }
+        if (err.name === "ValidationError") {
+          return next(new BAD_REQUEST_ERROR("Incorrect data sent"));
+        }
+        return next(err);
+      });
+  });
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   const { name, about } = req.body;
 
   userSchema
     .findByIdAndUpdate(
       req.user._id,
       { name, about },
-      { new: true, runValidators: true },
+      { new: true, runValidators: true }
     )
+    .orFail(new NOT_FOUND_ERROR("User is not found"))
     .then((user) => {
-      res.send(user);
+      res.send({
+        data: user,
+      });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res.status(BAD_REQUEST_ERROR).send({ message: 'Invalid data sent' });
-      } if (err.name === 'DocumentNotFoundError') {
-        return res.status(NOT_FOUND_ERROR).send({ message: 'User is not found' });
+      if (err.name === "ValidationError" || err.name === "CastError") {
+        return next(new BAD_REQUEST_ERROR("Incorrect data sent"));
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'A server error has occurred' });
+      return next(err);
     });
 };
 
-const updateAvatar = (req, res) => {
+const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   userSchema
     .findByIdAndUpdate(
       req.user._id,
       { avatar },
-      { new: true, runValidators: true },
+      { new: true, runValidators: true }
     )
+    .orFail(new NOT_FOUND_ERROR("User is not found"))
     .then((user) => {
-      res.send(user);
+      res.send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.name === 'CastError') {
-        return res.status(BAD_REQUEST_ERROR).send({ message: 'Invalid data sent' });
-      } if (err.name === 'DocumentNotFoundError') {
-        return res.status(NOT_FOUND_ERROR).send({ message: 'User is not found' });
+      if (err.name === "ValidationError" || err.name === "CastError") {
+        return next(new BAD_REQUEST_ERROR("Incorrect data sent"));
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'A server error has occurred' });
+      return next(err);
     });
+};
+
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  return userSchema
+    .findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, secretKey, { expiresIn: "7d" });
+      res.cookie("jwt", token, {
+        httpOnly: true,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+      return res.send({ message: "Successful authorization" });
+    })
+    .catch(next);
 };
 
 module.exports = {
@@ -96,4 +123,5 @@ module.exports = {
   createUser,
   updateUser,
   updateAvatar,
+  login,
 };

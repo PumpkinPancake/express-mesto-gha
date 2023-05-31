@@ -1,22 +1,40 @@
-const express = require('express');
-const mongoose = require('mongoose');
+/* eslint-env es6 */
+const mongoose = require("mongoose");
+const express = require("express");
+const helmet = require("helmet");
+const { errors } = require("celebrate");
 
-const router = require('./routes/router');
+const router = require("./routes/router");
+const auth = require("./middleweares/auth");
+const {
+  createUserValidator,
+  loginValidator,
+} = require("./middleweares/validation");
+const { createUser, login } = require("./controllers/users");
+
+const { MONGO_URL = "mongodb://127.0.0.1/mestodb", PORT = 3000 } = process.env;
 
 const app = express();
 
-const { MONGO_URL = 'mongodb://127.0.0.1/mestodb', PORT = 3000 } = process.env;
-
 app.use(express.json());
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '64630c5c289daecc12c37e44',
-  };
-  next();
-});
+app.use(helmet());
 
-app.use('/', router);
+app.use(errors());
+
+app.use("/signin", loginValidator, login);
+app.use("/signup", createUserValidator, createUser);
+
+app.use("/", router);
+app.use(auth);
+
+app.use((error, req, res) => {
+  const { status = 500, message } = error;
+
+  res.status(status).send({
+    message: status === 500 ? "Error on the server" : message,
+  });
+});
 
 mongoose
   .connect(MONGO_URL)

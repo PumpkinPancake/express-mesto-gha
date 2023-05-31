@@ -1,4 +1,5 @@
-const usersRouter = require('express').Router();
+/* eslint-env es6 */
+const usersRouter = require("express").Router();
 
 const {
   getUsers,
@@ -6,12 +7,18 @@ const {
   createUser,
   updateUser,
   updateAvatar,
-} = require('../controllers/users');
+} = require("../controllers/users");
 
-usersRouter.get('/', getUsers);
-usersRouter.get('/:userId', getUserById);
-usersRouter.post('/', createUser);
-usersRouter.patch('/me', updateUser);
-usersRouter.patch('/me/avatar', updateAvatar);
+const {
+  userIDValidator,
+  updateUserValidator,
+  updateAvatarValidator,
+} = require("../middleweares/validation");
+
+usersRouter.get("/", getUsers);
+usersRouter.get("/:userId", userIDValidator, getUserById);
+usersRouter.post("/", createUser);
+usersRouter.patch("/me", updateUserValidator, updateUser);
+usersRouter.patch("/me/avatar", updateAvatarValidator, updateAvatar);
 
 module.exports = usersRouter;

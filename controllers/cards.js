@@ -1,91 +1,90 @@
-const cardSchema = require('../models/card');
+/* eslint-env es6 */
+const cardSchema = require("../models/card");
 
-const BAD_REQUEST_ERROR = 400;
-const NOT_FOUND_ERROR = 404;
-const INTERNAL_SERVER_ERROR = 500;
+const BAD_REQUEST_ERROR = require("../errors/badRequestError");
+const NOT_FOUND_ERROR = require("../errors/notFoundError");
+const ACCESS_DENIED_ERROR = require("../errors/accessDeniedError");
 
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   cardSchema
     .find({})
     .then((cards) => res.send(cards))
-    .catch(() => res.status(INTERNAL_SERVER_ERROR).send({ message: 'A server error has occurred' }));
+    .catch(next);
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
 
   cardSchema
     .create({ name, link, owner: req.user._id })
     .then((card) => res.status(201).send(card))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(BAD_REQUEST_ERROR).send({ message: 'Incorrect data sent' });
+      if (err.name === "ValidationError") {
+        return next(new BAD_REQUEST_ERROR("Incorrect data sent"));
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'A server error has occurred' });
+      return next(err);
     });
 };
 
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
 
   cardSchema
     .findByIdAndRemove(cardId)
-    // eslint-disable-next-line consistent-return
     .then((card) => {
       if (!card) {
-        return res.status(NOT_FOUND_ERROR).send({ message: 'Card not found' });
+        throw new NotFoundError("Card not found");
       }
-      res.send(card);
+      if (!card.owner.equals(req.user._id)) {
+        return next(new ACCESS_DENIED_ERROR("Card cannot be deleted"));
+      }
+      return card.deleteOne();
     })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        return res.status(BAD_REQUEST_ERROR).send({ message: 'Incorrect data sent' });
-      }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'A server error has occurred' });
-    });
+    .then(() => {
+      res.status(200).send({ message: "Card successfully deleted" });
+    })
+    .catch(next);
 };
 
-const addLike = (req, res) => {
+const addLike = (req, res, next) => {
   cardSchema
     .findByIdAndUpdate(
       req.params.cardId,
       { $addToSet: { likes: req.user._id } },
-      { new: true },
+      { new: true }
     )
-    // eslint-disable-next-line consistent-return
     .then((card) => {
       if (!card) {
-        return res.status(NOT_FOUND_ERROR).send({ message: 'Card not found' });
+        throw new NOT_FOUND_ERROR("Card not found");
       }
-      res.send(card);
+      res.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        return res.status(BAD_REQUEST_ERROR).send({ message: 'Incorrect data sent' });
+      if (err.name === "CastError") {
+        return next(new BAD_REQUEST_ERROR("Incorrect data sent"));
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'A server error has occurred' });
+      return next(err);
     });
 };
 
-const removeLike = (req, res) => {
+const removeLike = (req, res, next) => {
   cardSchema
     .findByIdAndUpdate(
       req.params.cardId,
       { $pull: { likes: req.user._id } },
-      { new: true },
+      { new: true }
     )
-    // eslint-disable-next-line consistent-return
     .then((card) => {
       if (!card) {
-        return res.status(NOT_FOUND_ERROR).send({ message: 'Card not found' });
+        throw new NOT_FOUND_ERROR("Card not found");
       }
-      res.send(card);
+      res.send({ data: card });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        return res.status(BAD_REQUEST_ERROR).send({ message: 'Incorrect data sent' });
+      if (err.name === "CastError") {
+        return next(new BAD_REQUEST_ERROR("Incorrect data sent"));
       }
-      return res.status(INTERNAL_SERVER_ERROR).send({ message: 'A server error has occurred' });
+      return next(err);
     });
 };
 

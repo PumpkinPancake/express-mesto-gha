@@ -1,4 +1,5 @@
-const cardsRouter = require('express').Router();
+/* eslint-env es6 */
+const cardsRouter = require("express").Router();
 
 const {
   getCards,
@@ -6,12 +7,17 @@ const {
   deleteCard,
   addLike,
   removeLike,
-} = require('../controllers/cards');
+} = require("../controllers/cards");
 
-cardsRouter.get('/', getCards);
-cardsRouter.post('/', createCard);
-cardsRouter.put('/:cardId/likes', addLike);
-cardsRouter.delete('/:cardId/likes', removeLike);
-cardsRouter.delete('/:cardId', deleteCard);
+const {
+  createCardValidator,
+  cardIDValidator,
+} = require("../middleweares/validation");
+
+cardsRouter.get("/", getCards);
+cardsRouter.post("/", createCardValidator, createCard);
+cardsRouter.put("/:cardId/likes", cardIDValidator, addLike);
+cardsRouter.delete("/:cardId/likes", cardIDValidator, removeLike);
+cardsRouter.delete("/:cardId", cardIDValidator, deleteCard);
 
 module.exports = cardsRouter;
