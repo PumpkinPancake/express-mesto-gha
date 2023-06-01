@@ -13,7 +13,7 @@ const secretKey = "my-secret-key";
 const getUsers = (req, res, next) => {
   userSchema
     .find({})
-    .then((users) => res.send(users))
+    .then((users) => res.status(200).send(users))
     .catch((err) => next(err));
 };
 
@@ -24,7 +24,7 @@ const getUserById = (req, res, next) => {
     .findById(userId)
     .orFail(new NOT_FOUND_ERROR("User is not found"))
     .then((user) => {
-      res.send({ data: user });
+      res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === "CastError") {
@@ -38,9 +38,21 @@ const createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
 
   bcrypt.hash(password, SALT_ROUNDS).then((hash) => {
+    const userData = {
+      name: name || "Жак-Ив Кусто",
+      about: about || "Исследователь",
+      avatar:
+        avatar ||
+        "https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png",
+      email,
+      password: hash,
+    };
+
     userSchema
-      .create({ name, about, avatar, email, password: hash })
-      .then((user) => res.status(201).send({ data:{ name, about, avatar, email } }))
+      .create(userData)
+      .then((user) =>
+        res.status(201).send({ data: { name, about, avatar, email } })
+      )
       .catch((err) => {
         if (err.code === 11000) {
           return next(
@@ -60,10 +72,15 @@ const createUser = (req, res, next) => {
 const updateUser = (req, res, next) => {
   const { name, about } = req.body;
 
+  const updatedData = {
+    name: name || "Жак-Ив Кусто",
+    about: about || "Исследователь"
+  };
+
   userSchema
     .findByIdAndUpdate(
       req.user._id,
-      { name, about },
+      updatedData,
       { new: true, runValidators: true }
     )
     .orFail(new NOT_FOUND_ERROR("User is not found"))

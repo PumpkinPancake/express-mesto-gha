@@ -9,7 +9,7 @@ const auth = (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith("Bearer ")) {
-    throw new UNAUTHORIZED_ERROR("Registration required");
+    throw new UNAUTHORIZED_ERROR("Invalid or expired token");
   }
 
   const token = authorization.replace("Bearer ", "");
