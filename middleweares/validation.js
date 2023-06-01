@@ -10,11 +10,6 @@ const URLValidator = (url) => {
   throw new Error("Wrong URL");
 };
 
-// const IDValidator = (id) => {
-//   if (regex.test(id)) return id;
-//   throw new Error("Wrong ID");
-// };
-
 const cardIDValidator = celebrate({
   params: Joi.object().keys({
     cardId: Joi.string().length(24).hex().required(),

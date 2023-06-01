@@ -1,9 +1,0 @@
-.element__like_container {
-  align-self: center;
-  justify-self: end;
-  display: grid;
-  align-items: center;
-  margin-right: 20px;
-  grid-column: 3;
-  
-}
