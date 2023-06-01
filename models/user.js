@@ -7,21 +7,18 @@ const UNAUTHORIZED_ERROR = require("../errors/unauthorizedError");
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
     maxlength: 30,
     minlength: 2,
     default: "Жак-Ив Кусто",
   },
   about: {
     type: String,
-    required: true,
     maxlength: 30,
     minlength: 2,
     default: "Исследователь",
   },
   avatar: {
     type: String,
-    required: true,
     validate: {
       validator: (url) => validator.isURL(url),
       message: "Wrong URL",
