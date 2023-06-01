@@ -2,7 +2,7 @@
 const userSchema = require("../models/user");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-require('mongoose-lean-id');
+require("mongoose-lean-id");
 
 const BAD_REQUEST_ERROR = require("../errors/badRequestError");
 const NOT_FOUND_ERROR = require("../errors/notFoundError");
@@ -29,7 +29,7 @@ const getUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === "CastError") {
-      next(new BAD_REQUEST_ERROR("Incorrect data sent"));
+        return next(new BAD_REQUEST_ERROR("Incorrect data sent"));
       }
       next(err);
     });
@@ -55,38 +55,43 @@ const getUserById = (req, res, next) => {
 const createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
 
-  bcrypt.hash(password, SALT_ROUNDS)
-  .then((hash) => {
-    userSchema
-      .create({ name, about, avatar, email, password: hash })
-      .then(() =>
-        res.status(201).send({ data: { name, about, avatar, email } })
-      )
-      .catch((err) => {
-        if (err.code === 11000) {
-          return next(
-            new WRONG_CONFLICT_ENTITY(
-              `User with this email address ${email} already exists`
-            )
-          );
-        }
-        if (err.name === "ValidationError") {
-          return next(new BAD_REQUEST_ERROR("Incorrect data sent"));
-        }
-        return next(err);
-      })
-  })
-  .catch(next);
+  bcrypt
+    .hash(password, SALT_ROUNDS)
+    .then((hash) => {
+      userSchema
+        .create({ name, about, avatar, email, password: hash })
+        .then(() =>
+          res.status(201).send({ data: { name, about, avatar, email } })
+        )
+        .catch((err) => {
+          if (err.code === 11000) {
+            return next(
+              new WRONG_CONFLICT_ENTITY(
+                `User with this email address ${email} already exists`
+              )
+            );
+          }
+          if (err.name === "ValidationError") {
+            return next(new BAD_REQUEST_ERROR("Incorrect data sent"));
+          }
+          return next(err);
+        });
+    })
+    .catch(next);
 };
 
 const updateUser = (req, res, next) => {
   const { name, about } = req.body;
 
   userSchema
-    .findByIdAndUpdate(req.user._id, { name, about }, {
-      new: true,
-      runValidators: true,
-    })
+    .findByIdAndUpdate(
+      req.user._id,
+      { name, about },
+      {
+        new: true,
+        runValidators: true,
+      }
+    )
     .orFail(new NOT_FOUND_ERROR("User is not found"))
     .then((user) => {
       res.send(user);
