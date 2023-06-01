@@ -1,4 +1,4 @@
- /* eslint-env es6 */
+/* eslint-env es6 */
 
 const mongoose = require("mongoose");
 
@@ -12,6 +12,14 @@ const router = require("./routes/router");
 
 const auth = require("./middleweares/auth");
 
+const {
+  createUserValidator,
+
+  loginValidator,
+} = require("./middleweares/validation");
+
+const { createUser, login } = require("./controllers/users");
+
 const { MONGO_URL = "mongodb://127.0.0.1/mestodb", PORT = 3000 } = process.env;
 
 const app = express();
@@ -19,6 +27,9 @@ const app = express();
 app.use(express.json());
 
 app.use(helmet());
+
+app.post("/signin", loginValidator, login);
+app.post("/signup", createUserValidator, createUser);
 
 app.use(auth);
 app.use("/", router);
