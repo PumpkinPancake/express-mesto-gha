@@ -1,6 +1,8 @@
 /* eslint-env es6 */
 const cardSchema = require("../models/card");
 
+require("mongoose-lean-id");
+
 const BAD_REQUEST_ERROR = require("../errors/badRequestError");
 const NOT_FOUND_ERROR = require("../errors/notFoundError");
 const ACCESS_DENIED_ERROR = require("../errors/accessDeniedError");
@@ -30,18 +32,15 @@ const deleteCard = (req, res, next) => {
   const { cardId } = req.params;
 
   cardSchema
-    .findByIdAndRemove(cardId)
+    .findById(cardId)
+    .orFail(new BAD_REQUEST_ERROR("Card not found"))
     .then((card) => {
-      if (!card) {
-        throw new NotFoundError("Card not found");
-      }
       if (!card.owner.equals(req.user._id)) {
         return next(new ACCESS_DENIED_ERROR("Card cannot be deleted"));
       }
-      return card.deleteOne();
-    })
-    .then(() => {
-      res.status(200).send({ message: "Card successfully deleted" });
+      return card.deleteOne().then(() => {
+        res.status(200).send({ message: "Card removed" });
+      });
     })
     .catch(next);
 };
@@ -57,7 +56,7 @@ const addLike = (req, res, next) => {
       if (!card) {
         throw new NOT_FOUND_ERROR("Card not found");
       }
-      res.send({ data: card });
+      res.status(200).send({ data: card });
     })
     .catch((err) => {
       if (err.name === "CastError") {
