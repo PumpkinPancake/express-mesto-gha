@@ -33,7 +33,7 @@ const deleteCard = (req, res, next) => {
 
   cardSchema
     .findById(cardId)
-    .orFail(new BAD_REQUEST_ERROR("Card not found", 404))
+    .orFail(new NOT_FOUND_ERROR("Card not found"))
     .then((card) => {
       if (!card.owner.equals(req.user._id)) {
         return next(new ACCESS_DENIED_ERROR("Card cannot be deleted"));
