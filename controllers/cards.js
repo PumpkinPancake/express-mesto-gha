@@ -52,14 +52,11 @@ const addLike = (req, res, next) => {
       { $addToSet: { likes: req.user._id } },
       { new: true }
     )
-    .orFail(new NOT_FOUND_ERROR("Card not found"))
     .then((card) => {
-      const hasLiked = card.likes.includes(req.user._id);
-      if (hasLiked) {
-        res.status(200).send({ data: card });
-      } else {
-        res.status(201).send({ data: card });
+      if (!card) {
+        throw new NOT_FOUND_ERROR("Card not found");
       }
+      res.status(200).send({ data: card });
     })
     .catch((err) => {
       if (err.name === "CastError") {
@@ -76,14 +73,11 @@ const removeLike = (req, res, next) => {
       { $pull: { likes: req.user._id } },
       { new: true }
     )
-    .orFail(new NOT_FOUND_ERROR("Card not found"))
     .then((card) => {
-      const hasLiked = card.likes.includes(req.user._id);
-      if (hasLiked) {
-        res.status(200).send({ data: card });
-      } else {
-        res.status(201).send({ data: card });
+      if (!card) {
+        throw new NOT_FOUND_ERROR("Card not found");
       }
+      res.status(200).send({ data: card });
     })
     .catch((err) => {
       if (err.name === "CastError") {

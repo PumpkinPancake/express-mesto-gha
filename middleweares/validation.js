@@ -15,6 +15,12 @@ const IDValidator = (id) => {
   throw new Error("Wrong ID");
 };
 
+const cardIDValidator = celebrate({
+  params: Joi.object().keys({
+    cardId: Joi.string().custom(IDValidator).required(),
+  }),
+});
+
 const createUserValidator = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
@@ -55,12 +61,6 @@ const createCardValidator = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).required(),
     link: Joi.string().custom(URLValidator).required(),
-  }),
-});
-
-const cardIDValidator = celebrate({
-  body: Joi.object().keys({
-    cardId: Joi.string().custom(IDValidator).required(),
   }),
 });
 
