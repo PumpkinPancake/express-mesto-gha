@@ -29,7 +29,7 @@ const getUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === "CastError") {
-      return next(new BAD_REQUEST_ERROR("Incorrect data sent"));
+      next(new BAD_REQUEST_ERROR("Incorrect data sent"));
       }
       next(err);
     });

@@ -17,7 +17,7 @@ const IDValidator = (id) => {
 
 const cardIDValidator = celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().custom(IDValidator).required(),
+    cardId: Joi.string().length(24).hex().required(),
   }),
 });
 
@@ -33,7 +33,7 @@ const createUserValidator = celebrate({
 
 const userIDValidator = celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().custom(IDValidator).required(),
+    userId: Joi.string().length(24).hex().required(),
   }),
 });
 
