@@ -7,7 +7,6 @@ const express = require("express");
 const helmet = require("helmet");
 
 const { errors } = require("celebrate");
-const errorHandler = require('./middleweares/errorHandler');
 
 const router = require("./routes/router");
 
@@ -26,7 +25,14 @@ app.use("/", router);
 
 app.use(errors());
 
-app.use(errorHandler);
+app.use((error, req, res, next) => {
+  const { status = 500, message } = error;
+
+  res.status(status).send({
+    message: status === 500 ? "Error on the server" : message,
+  });
+  next();
+});
 
 mongoose
   .connect(MONGO_URL)
