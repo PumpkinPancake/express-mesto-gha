@@ -38,17 +38,9 @@ const createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
 
   bcrypt.hash(password, SALT_ROUNDS).then((hash) => {
-    const userData = {
-      name: name ? name : "Жак-Ив Кусто",
-      about: about ? about : "Исследователь",
-      avatar: avatar ? avatar : "https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png",
-      email,
-      password: hash,
-    };
-
     userSchema
-      .create(userData)
-      .then((user) =>
+      .create({ name, about, avatar, email, password: hash })
+      .then(() =>
         res.status(200).send({ data: { name, about, avatar, email } })
       )
       .catch((err) => {
@@ -63,7 +55,8 @@ const createUser = (req, res, next) => {
           return next(new BAD_REQUEST_ERROR("Incorrect data sent"));
         }
         return next(err);
-      });
+      })
+      .catch(next);
   });
 };
 
@@ -72,15 +65,14 @@ const updateUser = (req, res, next) => {
 
   const updatedData = {
     name: name || "Жак-Ив Кусто",
-    about: about || "Исследователь"
+    about: about || "Исследователь",
   };
 
   userSchema
-    .findByIdAndUpdate(
-      req.user._id,
-      updatedData,
-      { new: true, runValidators: true }
-    )
+    .findByIdAndUpdate(req.user._id, updatedData, {
+      new: true,
+      runValidators: true,
+    })
     .orFail(new NOT_FOUND_ERROR("User is not found"))
     .then((user) => {
       res.send({
@@ -127,7 +119,7 @@ const login = (req, res, next) => {
         httpOnly: true,
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
-      return res.send({ message: "Successful authorization" });
+      return res.send({ token });
     })
     .catch(next);
 };
