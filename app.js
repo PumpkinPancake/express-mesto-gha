@@ -31,6 +31,7 @@ app.use((error, req, res, next) => {
   res.status(status).send({
     message: status === 500 ? "Error on the server" : message,
   });
+
   next();
 });
 
