@@ -1,14 +1,17 @@
 /* eslint-env es6 */
 const router = require("express").Router();
 
-const auth = require('../middleweares/auth');
+const auth = require("../middleweares/auth");
+const {
+  loginValidator,
+  createUserValidator,
+} = require("../middleweares/validation");
+const { createUser, login } = require('../controllers/users');
 
-const { loginValidator, createUserValidator } = require('../middleweares/validation')
+const NOT_FOUND_ERROR = require("../errors/notFoundError");
 
 const cardsRouter = require("./cards");
 const usersRouter = require("./users");
-
-const NOT_FOUND_ERROR = require("../errors/notFoundError");
 
 router.post("/signin", loginValidator, login);
 router.post("/signup", createUserValidator, createUser);
