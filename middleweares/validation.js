@@ -20,7 +20,7 @@ const createUserValidator = celebrate({
     name: Joi.string().min(2).max(30).required(),
     about: Joi.string().min(2).max(30).required(),
     avatar: Joi.string().custom(URLValidator),
-    email: Joi.string().email().required(),
+    email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),
 });
