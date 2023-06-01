@@ -17,6 +17,23 @@ const getUsers = (req, res, next) => {
     .catch((err) => next(err));
 };
 
+const getUser = (req, res, next) => {
+  userSchema
+    .findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        throw new NOT_FOUND_ERROR("User does not exist");
+      }
+      res.status(200).send(user);
+    })
+    .catch((err) => {
+      if (err.name === "CastError") {
+        next(BAD_REQUEST_ERROR("Incorrect data sent"));
+      }
+      next(err);
+    });
+};
+
 const getUserById = (req, res, next) => {
   const { userId } = req.params;
 
@@ -126,6 +143,7 @@ const login = (req, res, next) => {
 
 module.exports = {
   getUsers,
+  getUser,
   getUserById,
   createUser,
   updateUser,
