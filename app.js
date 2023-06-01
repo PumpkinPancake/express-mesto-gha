@@ -10,16 +10,6 @@ const { errors } = require("celebrate");
 
 const router = require("./routes/router");
 
-const auth = require("./middleweares/auth");
-
-// const {
-//   createUserValidator,
-
-//   loginValidator,
-// } = require("./middleweares/validation");
-
-// const { createUser, login } = require("./controllers/users");
-
 const { MONGO_URL = "mongodb://127.0.0.1/mestodb", PORT = 3000 } = process.env;
 
 const app = express();
