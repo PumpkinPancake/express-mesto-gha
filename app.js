@@ -25,6 +25,7 @@ app.use(auth);
 app.use("/", router);
 
 app.use(errors());
+
 app.use(errorHandler);
 
 mongoose
