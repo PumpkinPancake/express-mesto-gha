@@ -6,7 +6,7 @@ const errorHandler = (error, req, res, next) => {
     message: status === 500 ? "Error on the server" : message,
   });
 
-  next();
+  return next();
 };
 
 module.exports = errorHandler;
