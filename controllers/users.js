@@ -24,7 +24,7 @@ const getUserById = (req, res, next) => {
     .findById(userId)
     .orFail(new NOT_FOUND_ERROR("User is not found"))
     .then((user) => {
-      res.status(200).send(user);
+      res.status(200).send({ data: user });
     })
     .catch((err) => {
       if (err.name === "CastError") {
@@ -39,11 +39,9 @@ const createUser = (req, res, next) => {
 
   bcrypt.hash(password, SALT_ROUNDS).then((hash) => {
     const userData = {
-      name: name || "Жак-Ив Кусто",
-      about: about || "Исследователь",
-      avatar:
-        avatar ||
-        "https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png",
+      name: name ? name : "Жак-Ив Кусто",
+      about: about ? about : "Исследователь",
+      avatar: avatar ? avatar : "https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png",
       email,
       password: hash,
     };
@@ -51,7 +49,7 @@ const createUser = (req, res, next) => {
     userSchema
       .create(userData)
       .then((user) =>
-        res.status(201).send({ data: { name, about, avatar, email } })
+        res.status(200).send({ data: { name, about, avatar, email } })
       )
       .catch((err) => {
         if (err.code === 11000) {
