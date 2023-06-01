@@ -10,14 +10,14 @@ const URLValidator = (url) => {
   throw new Error("Wrong URL");
 };
 
-const IDValidator = (id) => {
-  if (regex.test(id)) return id;
-  throw new Error("Wrong ID");
-};
+// const IDValidator = (id) => {
+//   if (regex.test(id)) return id;
+//   throw new Error("Wrong ID");
+// };
 
 const cardIDValidator = celebrate({
   params: Joi.object().keys({
-    cardId: Joi.string().custom(IDValidator).required(),
+    cardId: Joi.string().length(24).hex().required(),
   }),
 });
 
@@ -33,7 +33,7 @@ const createUserValidator = celebrate({
 
 const userIDValidator = celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().custom(IDValidator).required(),
+    userId: Joi.string().length(24).hex().required(),
   }),
 });
 
