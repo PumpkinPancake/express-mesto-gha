@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const express = require("express");
 const helmet = require("helmet");
 const { errors } = require("celebrate");
-const rateLimit = require("express-rate-limit");
+// const rateLimit = require("express-rate-limit");
 
 const router = require("./routes/router");
 const auth = require("./middleweares/auth");
@@ -15,16 +15,16 @@ const { createUser, login } = require("./controllers/users");
 
 const { MONGO_URL = "mongodb://127.0.0.1/mestodb", PORT = 3000 } = process.env;
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 100,
-  max: 100,
-  standartHeaders: true,
-  legasyHeaders: falsex,
-});
+// const limiter = rateLimit({
+//   windowMs: 15 * 60 * 100,
+//   max: 100,
+//   standartHeaders: true,
+//   legasyHeaders: falsex,
+// });
 
 const app = express();
 
-app.use(limiter);
+// app.use(limiter);
 
 app.use(express.json());
 
